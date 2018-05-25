@@ -1,0 +1,5 @@
+db:
+  driver: org.postgresql.Driver
+  url: jdbc:postgresql://192.168.2.8:21532/sixioa
+  username: testuser1
+  password: 123456X

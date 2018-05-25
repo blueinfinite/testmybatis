@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blueinfinite.mapper.CustomMapper">
+    <select id="getCustom" parameterType="int" resultType="com.blueinfinite.model.Custom">
+        select id,custom_name as customName from sync_custom where id=#{ID}
+    </select>
+</mapper>
