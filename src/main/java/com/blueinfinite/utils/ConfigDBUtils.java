@@ -15,13 +15,24 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * 配置工具
+ */
 public class ConfigDBUtils {
-
+    /**
+     * 生成SqlSessionFactory
+     * @param sessionFactoryName 工厂名，一个名称对称一个工厂，用于区分多数据源
+     * @param mapperPath mapper文件位置
+     * @param jdbcTrans
+     * @param dataSource 数据源
+     * @return
+     */
     public static SqlSessionFactory getSqlSessionFactory(String sessionFactoryName, String mapperPath, JdbcTransactionFactory jdbcTrans, DataSource dataSource) {
+        //1、创建基于mybatis的配置实例
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
-
+        //2、将数据源导入配置
         configuration.setEnvironment(new Environment(sessionFactoryName, jdbcTrans, dataSource));
-
+        //3、获取指定的所有mapper文件
         ApplicationContext ctx = new FileSystemXmlApplicationContext();
         Resource[] mapperResource = null;
         try {
@@ -30,24 +41,26 @@ public class ConfigDBUtils {
             e.printStackTrace();
         }
 
-        System.out.println(configuration.getSqlFragments());
-
         try {
+            //4、解析并将所有mapper导入到配置
             for (Resource res : mapperResource) {
-                XMLMapperBuilder xmlMapperBuilder = null;
-
-                xmlMapperBuilder = new XMLMapperBuilder(res.getInputStream(),
+                XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(res.getInputStream(),
                         configuration, res.toString(), configuration.getSqlFragments());
                 xmlMapperBuilder.parse();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        //5、SqlSessionFactoryBuilder使用配置生成SqlSessionFactory
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         return sqlSessionFactory;
     }
 
+    /**
+     * 生成数据源
+     * @param info
+     * @return
+     */
     public static DataSource getDruid(ConfigDBInfo info) {
         System.out.println("Create DruidDataSource:" + info.getUrl());
 
@@ -97,8 +110,6 @@ public class ConfigDBUtils {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        System.out.println(dds.getDriverClassName());
         return dds;
     }
 }
