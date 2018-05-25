@@ -1,100 +1,43 @@
-package com.blueinfinite;
+package com.blueinfinite.utils;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.blueinfinite.Service.MessageService;
-import com.blueinfinite.mapper.CustomMapper;
+import com.blueinfinite.config.ConfigDBInfo;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@Configuration
-public class Config {
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
-        System.out.println("PropertySourcesPlaceholderConfigurer");
-        YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
-        yaml.setResources(new ClassPathResource("application.yml"));
+public class ConfigDBUtils {
 
-        PropertySourcesPlaceholderConfigurer p = new PropertySourcesPlaceholderConfigurer();
-        p.setProperties(yaml.getObject());
-
-        return p;
-    }
-
-    @Bean
-    MessageService mockMessageService() {
-        return ()-> "hello";
-
-//        return new MessageService() {
-//            public String getMessage() {
-//                return "Hello world.";
-//            }
-//        };
-    }
-
-    @Bean
-    public DataSource dataSource(ConfigDBInfo info) {
-        System.out.println(info.toString());
-        return getDruid(info);
-    }
-
-    @Bean
-    JdbcTransactionFactory jdbcTransactionFactory() {
-        return new JdbcTransactionFactory();
-    }
-
-    @Bean
-    SqlSessionFactory getSqlSessionFactory(JdbcTransactionFactory jdbcTrans,DataSource dataSource) {
-        System.out.println("getSqlSessionFactory");
+    public static SqlSessionFactory getSqlSessionFactory(String sessionFactoryName, String mapperPath, JdbcTransactionFactory jdbcTrans, DataSource dataSource) {
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
 
+        configuration.setEnvironment(new Environment(sessionFactoryName, jdbcTrans, dataSource));
 
-        configuration.setEnvironment(new Environment("test_mybatis", jdbcTrans, dataSource));
-
-//        Resources.getResourceAsStream("mybatis.config")
-//
-//        XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(mapperLocation.getInputStream(),
-//                configuration, mapperLocation.toString(), configuration.getSqlFragments());
-//        xmlMapperBuilder.parse();
-
-        configuration.addMapper(CustomMapper.class);
-
-        ApplicationContext ctx=new FileSystemXmlApplicationContext();
+        ApplicationContext ctx = new FileSystemXmlApplicationContext();
         Resource[] mapperResource = null;
         try {
-            mapperResource=ctx.getResources("classpath*:mapper/*.xml");
+            mapperResource = ctx.getResources(mapperPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println(mapperResource.length);
+        System.out.println(configuration.getSqlFragments());
+
         try {
             for (Resource res : mapperResource) {
                 XMLMapperBuilder xmlMapperBuilder = null;
 
-                    xmlMapperBuilder = new XMLMapperBuilder(res.getInputStream(),
-                            configuration, res.toString(), configuration.getSqlFragments());
+                xmlMapperBuilder = new XMLMapperBuilder(res.getInputStream(),
+                        configuration, res.toString(), configuration.getSqlFragments());
                 xmlMapperBuilder.parse();
             }
         } catch (IOException e) {
@@ -105,8 +48,8 @@ public class Config {
         return sqlSessionFactory;
     }
 
-    public static DataSource getDruid(ConfigDBInfo info){
-        System.out.println("Create DruidDataSource:"+info.getUrl());
+    public static DataSource getDruid(ConfigDBInfo info) {
+        System.out.println("Create DruidDataSource:" + info.getUrl());
 
         DruidDataSource dds = new DruidDataSource();
         dds.setUrl(info.getUrl());
@@ -150,7 +93,7 @@ public class Config {
         try {
             dds.setFilters("stat,wall");
         } catch (SQLException e) {
-            System.out.println("error:"+e.getMessage());
+            System.out.println("error:" + e.getMessage());
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -158,6 +101,4 @@ public class Config {
         System.out.println(dds.getDriverClassName());
         return dds;
     }
-
-
 }

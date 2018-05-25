@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.blueinfinite.mapper.Class2Mapper">
-    <select id="getInfo" parameterType="int" resultType="com.blueinfinite.model.Class2">
+<mapper namespace="com.blueinfinite.mapper.DepartmentMapper">
+    <select id="getInfo" parameterType="int" resultType="com.blueinfinite.model.Department">
         select id,className from sync_class_2 where id=#{ID}
     </select>
 </mapper>

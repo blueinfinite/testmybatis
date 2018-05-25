@@ -1,23 +1,20 @@
 import com.blueinfinite.App;
 import com.blueinfinite.BeanTest;
-import com.blueinfinite.ConfigDBInfo;
+import com.blueinfinite.config.ConfigDBInfo;
 import com.blueinfinite.MessagePrinter;
-import com.blueinfinite.mapper.Class2Mapper;
+import com.blueinfinite.mapper.DepartmentMapper;
 import com.blueinfinite.mapper.CustomMapper;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringJUnitConfig(App.class)
-public class Test1 {
+public class TestMybatis {
     @Autowired
     BeanTest beanTest;
 
@@ -34,20 +31,24 @@ public class Test1 {
 //    CustomMapper customMapper;
 
     @Test
-    public void springtest() {
+    public void test_springhello() {
         messagePrinter.pringMessage();
+    }
 
+    @Test
+    public void test_getconfiginfo() {
         System.out.println(configDBInfo.toString());
+    }
 
-        SqlSession sqlSession=sqlSessionFactory.openSession();
+    @Test
+    public void test_mybatis() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
         CustomMapper customMapper = sqlSession.getMapper(CustomMapper.class);
-        Class2Mapper class2Mapper = sqlSession.getMapper(Class2Mapper.class);
+        DepartmentMapper departmentMapper = sqlSession.getMapper(DepartmentMapper.class);
+
         System.out.println(customMapper.getCustom(1604054));
-        System.out.println(class2Mapper.getInfo(1149));
+        System.out.println(departmentMapper.getInfo(1149));
 
-
-
-
-
+        sqlSession.close();
     }
 }

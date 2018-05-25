@@ -1,6 +1,6 @@
 package com.blueinfinite.model;
 
-public class Class2 {
+public class Department {
     private int id;
     private String className;
 
@@ -22,7 +22,7 @@ public class Class2 {
 
     @Override
     public String toString() {
-        return "Class2{" +
+        return "Department{" +
                 "id=" + id +
                 ", className='" + className + '\'' +
                 '}';
